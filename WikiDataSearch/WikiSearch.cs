@@ -20,7 +20,7 @@ namespace WikiDataSearch
             InitializeComponent();
         }
         // 8.1	Create a global 2D string array, use static variables for the dimensions(row, column),
-        static int row = 7;
+        static int row = 12;
         static int column = 4; // Name, Category, Structure, Definition
         string[,] wikiDataArray = new string[row, column];
         string defaultName = "Definition.bin";
@@ -35,10 +35,15 @@ namespace WikiDataSearch
             listViewOutput.ForeColor = Color.Black;
             for (int x = 0; x < row; x++)
             {
-                ListViewItem lvi = new ListViewItem(wikiDataArray[x, 0]);
-                lvi.SubItems.Add(wikiDataArray[x, 1]);
-                lvi.SubItems.Add(wikiDataArray[x, 2]);
-                listViewOutput.Items.Add(lvi);
+                if (!string.IsNullOrWhiteSpace(wikiDataArray[x, 0]))
+                {
+                    ListViewItem lvi = new ListViewItem(wikiDataArray[x, 0]);
+                    lvi.SubItems.Add(wikiDataArray[x, 1]);
+                    lvi.SubItems.Add(wikiDataArray[x, 2]);
+                    lvi.SubItems.Add(wikiDataArray[x, 3]);
+                    listViewOutput.Items.Add(lvi);
+                }
+
             }
         }
         //8.4	Write the code for a Bubble Sort method to sort the 2D array by Name ascending,
@@ -87,127 +92,94 @@ namespace WikiDataSearch
         // 8.2	Create an ADD button that will store the information from the 4 text boxes into the 2D array
         private void buttonAdd_Click(object sender, EventArgs e)
         {
-            // Replaces data since the program is assuming the listview is empty when its not so it just
-            // changes the data
 
-
-            //if (!string.IsNullOrWhiteSpace(textBoxName.Text) &&
-            //!string.IsNullOrWhiteSpace(textBoxStructure.Text) &&
-            //!string.IsNullOrWhiteSpace(textBoxCategory.Text) &&
-            //!string.IsNullOrWhiteSpace(textBoxDefinition.Text))
-            //{
-            //    for (int x = 0; x < row; x++)
-            //    {
-            //        if (wikiDataArray[x, 0] == "")
-            //        {
-            //            var result = MessageBox.Show("Would you like to add this data?", "Click 'OK' to proceed with adding new data"
-            //                , MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
-            //            if (result == DialogResult.OK)
-            //                break;
-            //            if (result == DialogResult.Cancel)
-            //                clearTextBox();
-            //                return;
-            //        }
-            //    }
-            //}
-
-            if (currentRow < row)
+            if (!string.IsNullOrWhiteSpace(textBoxName.Text) &&
+                !string.IsNullOrWhiteSpace(textBoxStructure.Text) &&
+                !string.IsNullOrWhiteSpace(textBoxCategory.Text) &&
+                !string.IsNullOrWhiteSpace(textBoxDefinition.Text))
             {
-                try
+                var result = MessageBox.Show("Add new data?", "Press 'Yes' to proceed",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                for (int x = 0; x < row; x++)
                 {
-                    if (!string.IsNullOrWhiteSpace(textBoxName.Text) &&
-                    !string.IsNullOrWhiteSpace(textBoxStructure.Text) &&
-                    !string.IsNullOrWhiteSpace(textBoxCategory.Text) &&
-                    !string.IsNullOrWhiteSpace(textBoxDefinition.Text))
+                    if (result == DialogResult.Yes)
                     {
-                        wikiDataArray[currentRow, 0] = textBoxName.Text;
-                        wikiDataArray[currentRow, 1] = textBoxCategory.Text;
-                        wikiDataArray[currentRow, 2] = textBoxStructure.Text;
-                        wikiDataArray[currentRow, 3] = textBoxDefinition.Text;
-                        currentRow++;
-                        clearTextBox();
+                        if (wikiDataArray[x, 0] == "~" || wikiDataArray[x, 0] == "")
+                        {
+                            if (currentRow <= row)
+                            {
+                                wikiDataArray[x, 0] = textBoxName.Text;
+                                wikiDataArray[x, 1] = textBoxCategory.Text;
+                                wikiDataArray[x, 2] = textBoxStructure.Text;
+                                wikiDataArray[x, 3] = textBoxDefinition.Text;
+                                currentRow++;
+                                bubbleSort();
+                                displayArray();
+                                clearTextBox();
+                                break;
+                            }
+                            else
+                            {
+                                MessageBox.Show("The wiki is full. Delete some data to enter more");
+                            }
+                        }
                     }
-                    else
-                    {
-                        MessageBox.Show("All boxes need to be filled out before submitting data.");
-                    }
-                }
-                catch
-                {
-                    MessageBox.Show("Error");
                 }
             }
             else
             {
-                MessageBox.Show("The wiki is full currently. Please delete some entries to add new ones.");
+                MessageBox.Show("Text boxes are empty");
+                textBoxName.Focus();
             }
-            allFunctions();
 
-            //if (!string.IsNullOrWhiteSpace(textBoxName.Text) &&
-            //    !string.IsNullOrWhiteSpace(textBoxStructure.Text) &&
-            //    !string.IsNullOrWhiteSpace(textBoxCategory.Text) &&
-            //    !string.IsNullOrWhiteSpace(textBoxDefinition.Text))
-            //{
-            //    var result = MessageBox.Show("Would you like to add this data?", "Click 'OK' to proceed with adding new data"
-            //        , MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
-
-            //    for (int x = 0; x < row; x++)
-            //    {
-            //        if (result == DialogResult.OK)
-            //        {
-            //            if (wikiDataArray[x, 0] == "")
-            //            {
-            //                wikiDataArray[x, 0] = textBoxName.Text;
-            //                wikiDataArray[x, 1] = textBoxCategory.Text;
-            //                wikiDataArray[x, 2] = textBoxStructure.Text;
-            //                wikiDataArray[x, 3] = textBoxDefinition.Text;
-            //                currentRow++;
-            //                allFunctions();
-            //                break;
-            //            }
-            //            else
-            //            {
-            //                MessageBox.Show("The wiki is full. Please delete some data before adding more data.");
-            //            }
-            //        }
-
-            //    }
-            //}
         }
         // 8.2 Delete Button
-        private void buttonDelete_Click(object sender, EventArgs e)
+        private void Delete()
         {
-            // Deleting a selected data will leave a blank space where it once was, so there data won't automatically go
-            // up to fill those spaces?
-            // Only can delete one data at a time. 
-
             try
             {
-                int delete = listViewOutput.SelectedIndices[0];
-                if (delete >= 0)
-               // if (delete >= 0 && currentRow > 0 && !string.Equals(wikiDataArray[delete, 0], ""))
+                int currentRecord = listViewOutput.SelectedIndices[0];
+                if (currentRecord >= 0)
                 {
-                    var result = MessageBox.Show("Would you like to delete this wiki data", 
-                        "Click 'OK' to proceed with the deletion", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    DialogResult dialogResult = MessageBox.Show( "Would you like to delete this wiki data", 
+                        "Click 'Yes' to proceed with the deletion", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-                    if (result == DialogResult.Yes)
+                    if (dialogResult == DialogResult.Yes)
                     {
-                        ListViewItem lvi = new ListViewItem(wikiDataArray[currentRow, 0]);
-
-                        wikiDataArray[delete, 0] = "~";
-                        wikiDataArray[delete, 1] = "~";
-                        wikiDataArray[delete, 2] = "~";
-                        wikiDataArray[delete, 3] = "~";
+                        ListViewItem item = new ListViewItem(wikiDataArray[currentRecord, 0]);
+                        wikiDataArray[currentRecord, 0] = " ";
+                        wikiDataArray[currentRecord, 1] = " ";
+                        wikiDataArray[currentRecord, 2] = " ";
+                        wikiDataArray[currentRecord, 3] = " ";
                         currentRow--;
-                        allFunctions();
+                        clearTextBox();
+                        bubbleSort();
+                        displayArray();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Item has not been deleted", "Delete Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
-            } 
+            }
             catch (ArgumentOutOfRangeException)
             {
-                MessageBox.Show("Please select an item to delete");
+                MessageBox.Show("Cannot perform this action");
             }
-            allFunctions();
+        }
+        private void buttonDelete_Click(object sender, EventArgs e)
+        {
+
+            Delete();
+            if (!string.IsNullOrWhiteSpace(textBoxInput.Text) &&
+                !string.IsNullOrWhiteSpace(textBoxCategory.Text) &&
+                !string.IsNullOrWhiteSpace(textBoxStructure.Text) &&
+                !string.IsNullOrWhiteSpace(textBoxDefinition.Text))
+            {
+                clearTextBox();
+
+            }
            
         }
         // 8.2 Edit Button
@@ -248,95 +220,40 @@ namespace WikiDataSearch
         // clear the search textbox (do not use any built-in array methods),
         private void buttonSearch_Click(object sender, EventArgs e)
         {
-            // Can't find anything apparently (Try again on home computer?)
 
-            int firstIndex = -1;
-            int lastIndex = currentRow;
-            bool target = false;
+            int startIndex = -1;
+            int finalIndex = currentRow; // set size of data in array
+            bool flag = false;
             int foundIndex = -1;
-
-            if (listViewOutput.SelectedItems.Count != 0)
+            while (!flag && !((finalIndex - startIndex) <= 1))
             {
-                listViewOutput.SelectedItems[0].Selected = false;
-            }
-
-            if (!string.IsNullOrEmpty(textBoxInput.Text))
-            {
-                while (!target && !((lastIndex - firstIndex) <= 1))
+                int newIndex = (finalIndex + startIndex) / 2;
+                if (string.Compare(wikiDataArray[newIndex, 0], textBoxInput.Text) == 0)
                 {
-                    int tempIndex = (lastIndex + firstIndex / 2);
-
-                    if (string.Compare(wikiDataArray[tempIndex, 0], textBoxInput.Text) == 0)
-                    {
-                        foundIndex = tempIndex;
-                        target = true;
-                        break;
-                    }
-                    else
-                    {
-                        if (string.Compare(wikiDataArray[tempIndex, 0], textBoxInput.Text) == 1)
-                            lastIndex = tempIndex;
-                        else
-                            firstIndex = tempIndex;
-                    }
+                    foundIndex = newIndex;
+                    flag = true;
+                    break;
                 }
-                if (target)
-                {
-                    //textBoxInput.Text = wikiDataArray[foundIndex, 0];
-                    textBoxName.Text = wikiDataArray[foundIndex, 0];
-                    textBoxCategory.Text = wikiDataArray[foundIndex, 1];
-                    textBoxStructure.Text = wikiDataArray[foundIndex, 2];
-                    textBoxDefinition.Text = wikiDataArray[foundIndex, 3];
-                    listViewOutput.Items[foundIndex].Selected = true;
-                    listViewOutput.HideSelection = false;
-                    MessageBox.Show("Data has been found: " + foundIndex);
-
-                }
-                else if (string.IsNullOrWhiteSpace(textBoxInput.Text))
-                {
-                    MessageBox.Show("Enter a data name in the search box please.");
-                    clearTextBox();
-                }
-                //else if (!string.IsNullOrWhiteSpace(textBoxInput.Text) || listViewOutput.Items.Count == -1)
-                //{
-                //    MessageBox.Show("There is no data in the list. Please add some before searching.");
-                //    clearTextBox();
-                //}
                 else
                 {
-                    MessageBox.Show("Data cannot be found.");
-                    clearTextBox();
+                    if (string.Compare(wikiDataArray[newIndex, 0], textBoxInput.Text) == 1)
+                        finalIndex = newIndex;
+                    else
+                        startIndex = newIndex;
                 }
             }
-
-
-            //string target = textBoxInput.Text;
-            //int lowbound = 0;
-            //int mid = 0;
-            //int highbound = row - 1;
-
-            //listViewOutput.Items.Clear();
-            //if (!string.IsNullOrEmpty(textBoxInput.Text))
-            //{
-            //    while (lowbound <= highbound)
-            //    {
-            //        mid = (lowbound + highbound) / 2;
-
-            //        for (int x = 0; x < row; x++)
-            //        {
-            //            if (string.Compare(wikiDataArray[mid, 0], textBoxInput.Text) == 0)
-            //            {
-            //                MessageBox.Show("Found");
-            //                displayArray();
-            //                textBoxName.Text = wikiDataArray[mid, 0];
-            //                textBoxCategory.Text = wikiDataArray[mid, 1];
-            //                textBoxStructure.Text = wikiDataArray[mid, 2];
-            //                textBoxDefinition.Text = wikiDataArray[mid, 3];
-            //            }
-            //        }
-            //    }
-
-            //}
+            if (flag)
+            {
+                //textBoxInput.Text = wikiDataArray[foundIndex, 0];
+                textBoxName.Text = wikiDataArray[foundIndex, 0];
+                textBoxCategory.Text = wikiDataArray[foundIndex, 1];
+                textBoxStructure.Text = wikiDataArray[foundIndex, 2];
+                textBoxDefinition.Text = wikiDataArray[foundIndex, 3];
+                MessageBox.Show("Found at index: " + foundIndex);
+                clearTextBox();
+            }
+            else
+                MessageBox.Show("Not found");
 
         }
         private void WikiSearch_Load(object sender, EventArgs e)
@@ -373,6 +290,7 @@ namespace WikiDataSearch
             if (openFileDialogVG.ShowDialog() == DialogResult.OK)
             {
                 openRecord(openFileDialogVG.FileName);
+
             }
         }
         private void openRecord(string openFileName)
@@ -421,7 +339,6 @@ namespace WikiDataSearch
         }
         private void saveRecord(string saveFileName)
         {
-            //clearTextBox();
             try
             {
                 using (Stream stream = File.Open(saveFileName, FileMode.Create))
