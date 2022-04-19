@@ -50,13 +50,13 @@ namespace WikiDataSearch
         //ensure you use a separate swap method that passes (by reference) the array element to be swapped (do not use any built-in array methods),
         public void bubbleSort()
         {
-            for (int x = 1; x < row; x++)
+            for (int x = 0; x < row - 1; x++)
             {
                 for (int i = 0; i < row - 1; i++)
                 {
                     if (!(string.IsNullOrEmpty(wikiDataArray[i + 1, 0])))
                     {
-                        if (string.Compare(wikiDataArray[i, 0], wikiDataArray[i + 1, 0]) == 1)
+                        if (string.Compare(wikiDataArray[i, 0], wikiDataArray[i + 1, 0]) > 0)
                         {
                             sorting(i);
                         }
@@ -107,7 +107,7 @@ namespace WikiDataSearch
                     {
                         if (wikiDataArray[x, 0] == "~" || wikiDataArray[x, 0] == "")
                         {
-                            if (currentRow <= row)
+                            if (currentRow < 13)
                             {
                                 wikiDataArray[x, 0] = textBoxName.Text;
                                 wikiDataArray[x, 1] = textBoxCategory.Text;
@@ -225,9 +225,17 @@ namespace WikiDataSearch
             int finalIndex = currentRow; // set size of data in array
             bool flag = false;
             int foundIndex = -1;
+
+            //if (listViewOutput.SelectedItems.Count != 0)
+            //{
+            //    listViewOutput.SelectedItems[0].Selected = false;   
+            //}
+
+
             while (!flag && !((finalIndex - startIndex) <= 1))
             {
                 int newIndex = (finalIndex + startIndex) / 2;
+
                 if (string.Compare(wikiDataArray[newIndex, 0], textBoxInput.Text) == 0)
                 {
                     foundIndex = newIndex;
@@ -254,6 +262,7 @@ namespace WikiDataSearch
             }
             else
                 MessageBox.Show("Not found");
+            clearTextBox();
 
         }
         private void WikiSearch_Load(object sender, EventArgs e)
@@ -290,6 +299,7 @@ namespace WikiDataSearch
             if (openFileDialogVG.ShowDialog() == DialogResult.OK)
             {
                 openRecord(openFileDialogVG.FileName);
+                clearTextBox();
 
             }
         }
@@ -331,10 +341,12 @@ namespace WikiDataSearch
             if (saveFileDialogVG.FileName != "")
             {
                 saveRecord(fileName);
+                clearTextBox();
             }
             else
             {
                 saveRecord(defaultName);
+                clearTextBox();
             }
         }
         private void saveRecord(string saveFileName)
